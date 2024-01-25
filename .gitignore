@@ -1,0 +1,5 @@
+.vs
+/LispThingIdk/obj
+/LispThingIdk/bin
+*.csproj
+*.sln
