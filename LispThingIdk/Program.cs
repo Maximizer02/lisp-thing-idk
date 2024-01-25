@@ -1,24 +1,45 @@
-﻿Dictionary<string, Func<int, int, int>> diadicFunctions = new Dictionary<string, Func<int, int, int>>
+﻿Dictionary<string, Func<int, int, int>> diadicIntFunctionsOutInt = new Dictionary<string, Func<int, int, int>>
 {
     { "+", (a, b) => a + b },
     { "-", (a, b) => a - b },
     { "/", (a, b) => a / b },
-    { "*", (a, b) => a * b }
+    { "*", (a, b) => a * b },
+    { "%", (a, b) => a % b }
+};
+Dictionary<string, Func<int, int, bool>> diadicIntFunctionsOutBool = new Dictionary<string, Func<int, int, bool>>
+{
+    { "<", (a, b) => a < b },
+    { ">", (a, b) => a > b },
+    { "=", (a, b) => a == b }
 };
 
-Dictionary<string, Func<int, int>> monadicFunctions = new Dictionary<string, Func<int, int>>
+Dictionary<string, Func<int, int>> monadicIntFunctionsOutInt  = new Dictionary<string, Func<int, int>>
 {
     { "?", a=> {Console.WriteLine(a); return a; } },
-    { "nop", x=>x }
-
+    { "^", a=> a*a } 
 };
 
+Dictionary<string, Func<bool, bool>> monadicBoolFunctionsOutBool = new Dictionary<string, Func<bool, bool>>
+{
+    { "?", a=> {Console.WriteLine(a); return a; } }
+};
 
-parseInput(Console.ReadLine());
+// TODO: diadic bool out bool (aka. everything to do with boolean expressions)
+// TOTO: diadic string int out bool for variable declaration
+// TODO: everything to do with doubles lol
+
+// TODO: make this not while true
+while (true)
+{
+    parseInput(Console.ReadLine());
+}
+
 
 
 void parseInput(string input)
 {
+    if (input.Equals("exit")) { Environment.Exit(1); }
+
     Stack<int> openBrackets = new Stack<int>();
 
     for (int i = 0; i < input.Length; i++)
@@ -39,19 +60,56 @@ void parseInput(string input)
     }
 }
 
-int parseStatement(string statement)
+string parseStatement(string statement)
 {
-    string[] components = statement.Split(" ");
-    string op = components.Length > 0 ? components[0] : "?";
-    int alpha = components.Length > 1 ? int.Parse(components[1]) : -1;
-    int omega = components.Length > 2 ? int.Parse(components[2]) : -1;
-    if (monadicFunctions.ContainsKey(op))
+    string[] operands = statement.Split(' ');
+
+    try {  return parseStatementIntIntInt(operands[0], operands[1], operands[2]) + "";}catch(Exception) {  }
+    try {  return parseStatementIntIntBool(operands[0], operands[1], operands[2]) +"";}catch(Exception) { }
+    try {  return parseStatementIntInt(operands[0], operands[1]) +"";}catch(Exception) { }
+    try {  return parseStatementBoolBool(operands[0], operands[1]) +"";}catch(Exception) { }
+   
+    return "";
+}
+
+int parseStatementIntIntInt(string op, string _alpha, string _omega)
+{
+    int alpha = int.Parse(_alpha);
+    int omega = int.Parse(_omega);
+  if (diadicIntFunctionsOutInt.ContainsKey(op))
     {
-        return monadicFunctions[op](alpha);
+        return diadicIntFunctionsOutInt[op](alpha, omega);
     }
-    if (diadicFunctions.ContainsKey(op))
+    throw new Exception();
+}
+
+int parseStatementIntInt(string op, string _omega) 
+{
+    int omega = int.Parse(_omega) ;
+    if (monadicIntFunctionsOutInt.ContainsKey(op))
     {
-        return diadicFunctions[op](alpha, omega);
+        return monadicIntFunctionsOutInt[op](omega);
     }
-    return -1;
+    throw new Exception();
+}
+
+bool parseStatementIntIntBool(string op, string _alpha, string _omega) 
+{
+    int alpha = int.Parse(_alpha);
+    int omega = int.Parse(_omega);
+    if (diadicIntFunctionsOutBool.ContainsKey(op))
+    {
+        return diadicIntFunctionsOutBool[op](alpha, omega);
+    }
+    throw new Exception();
+}
+
+bool parseStatementBoolBool(string op, string _omega) 
+{
+    bool omega = bool.Parse(_omega);
+    if (monadicBoolFunctionsOutBool.ContainsKey(op))
+    {
+        return monadicBoolFunctionsOutBool [op](omega);
+    }
+    throw new Exception();
 }
