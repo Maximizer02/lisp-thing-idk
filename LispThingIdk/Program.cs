@@ -4,7 +4,8 @@
     { "-", (a, b) => a - b },
     { "/", (a, b) => a / b },
     { "*", (a, b) => a * b },
-    { "%", (a, b) => a % b }
+    { "%", (a, b) => a % b },
+    { "^", (a, b) => {int r = 1;for(int i = 0;i<b;i++){r*=a;}return r;} }
 };
 Dictionary<string, Func<int, int, bool>> diadicIntFunctionsOutBool = new Dictionary<string, Func<int, int, bool>>
 {
