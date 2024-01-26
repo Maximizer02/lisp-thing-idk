@@ -1,4 +1,5 @@
-﻿Dictionary<string, Func<int, int, int>> diadicIntFunctionsOutInt = new Dictionary<string, Func<int, int, int>>
+﻿Dictionary<string, string> variables = new Dictionary<string, string>();
+Dictionary<string, Func<int, int, int>> diadicIntFunctionsOutInt = new Dictionary<string, Func<int, int, int>>
 {
     { "+", (a, b) => a + b },
     { "-", (a, b) => a - b },
@@ -27,7 +28,6 @@ Dictionary<string, Func<bool, bool>> monadicBoolFunctionsOutBool = new Dictionar
     { "!", a=> !a }
 };
 
-// TODO: diadic bool out bool (aka. everything to do with boolean expressions)
 Dictionary<string, Func<bool, bool, bool>> diadicBoolFunctionsOutBool = new Dictionary<string, Func<bool, bool, bool>>
 {
     {"&", (a,b) =>  a && b },
@@ -35,7 +35,29 @@ Dictionary<string, Func<bool, bool, bool>> diadicBoolFunctionsOutBool = new Dict
     {"§", (a,b) =>  a ^ b }
 };
 
+Dictionary<string, Func<bool, string, string>> controlFlowFunctions = new Dictionary<string, Func<bool, string, string>>
+{
+    {"if", (a,b) => a?b:"" }
+};
+
+Dictionary<string, Func<string, string, string>> diadicStringFunctionsOutString = new Dictionary<string, Func<string, string, string>>
+{
+    {"var", (a,b) =>    {variables.Add(a,b); return b; } }
+};
+Dictionary<string, Func<string, string>> monadicStringFunctionsOutString = new Dictionary<string, Func<string, string>>
+{
+    {"def", a => variables[a] },
+    { "?", a=> {Console.WriteLine(a); return a; } }
+};
+
+
+
+
+
+// TODO: Control flow
+
 // TOTO: diadic string int out bool for variable declaration
+
 // TODO: everything to do with doubles lol
 
 // TODO: make this not while true
@@ -77,8 +99,11 @@ string parseStatement(string statement)
     try {  return parseStatementIntIntInt(operands[0], operands[1], operands[2]) + "";}catch(Exception) {  }
     try {  return parseStatementIntIntBool(operands[0], operands[1], operands[2]) +"";}catch(Exception) { }
     try {  return parseStatementBoolBoolBool(operands[0], operands[1], operands[2]) +"";}catch(Exception) { }
+    try {  return parseStatementBoolStringString(operands[0], operands[1], operands[2]) +"";}catch(Exception) { }
+    try {  return parseStatementStringStringString(operands[0], operands[1], operands[2]) +"";}catch(Exception) { }
     try {  return parseStatementIntInt(operands[0], operands[1]) +"";}catch(Exception) { }
     try {  return parseStatementBoolBool(operands[0], operands[1]) +"";}catch(Exception) { }
+    try {  return parseStatementStringString(operands[0], operands[1]) +"";}catch(Exception) { }
    
     return "";
 }
@@ -117,6 +142,23 @@ bool parseStatementBoolBoolBool(string op, string _alpha, string _omega)
     throw new Exception();
 }
 
+string parseStatementBoolStringString(string op, string _alpha, string _omega)
+{
+    bool alpha = bool.Parse(_alpha);
+    if (controlFlowFunctions.ContainsKey(op))
+    {
+        return controlFlowFunctions[op](alpha,_omega);
+    }
+    throw new Exception();
+}
+string parseStatementStringStringString(string op, string _alpha, string _omega)
+{
+    if (diadicStringFunctionsOutString.ContainsKey(op))
+    {
+        return diadicStringFunctionsOutString[op](_alpha,_omega);
+    }
+    throw new Exception();
+}
 
 
 //Monadic Functions
@@ -136,6 +178,14 @@ bool parseStatementBoolBool(string op, string _omega)
     if (monadicBoolFunctionsOutBool.ContainsKey(op))
     {
         return monadicBoolFunctionsOutBool [op](omega);
+    }
+    throw new Exception();
+}
+string parseStatementStringString(string op, string _omega) 
+{
+    if (monadicStringFunctionsOutString.ContainsKey(op))
+    {
+        return monadicStringFunctionsOutString[op](_omega);
     }
     throw new Exception();
 }
