@@ -42,7 +42,7 @@ Dictionary<string, Func<bool, string, string>> controlFlowFunctions = new Dictio
 
 Dictionary<string, Func<string, string, string>> diadicStringFunctionsOutString = new Dictionary<string, Func<string, string, string>>
 {
-    {"var", (a,b) =>    {variables.Add(a,b); return b; } }
+    {"def", (a,b) =>    {variables.Add(a,b); return b; } }
 };
 Dictionary<string, Func<string, string>> monadicStringFunctionsOutString = new Dictionary<string, Func<string, string>>
 {
