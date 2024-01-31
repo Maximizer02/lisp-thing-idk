@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace LispThingIdk
 {
-    public class ListElement :IListElement
+    public class ListElement
     {
-        string content;
+        public List<ListElement> list { get; }
+        public string content { get; }
         public ListElement(string _content) { content = _content; }
+        public ListElement(List<ListElement> _list) { list = _list; }
     }
 }

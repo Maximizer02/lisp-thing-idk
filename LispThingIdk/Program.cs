@@ -1,4 +1,5 @@
 ﻿using LispThingIdk;
+using System;
 
 Dictionary<string, string> constants = new Dictionary<string, string>();
 Dictionary<string, int> integerVariables = new Dictionary<string, int>();
@@ -74,7 +75,9 @@ Dictionary<string, Func<string, int>> monadicFuncsStringInt = new Dictionary<str
 
 bool doEvaluate = false;
 
-List<IListElement> list = new List<IListElement>();
+List<ListElement> list = new List<ListElement>();
+
+int i = 0;
 
 
 
@@ -88,9 +91,26 @@ List<IListElement> list = new List<IListElement>();
 // TODO: make this not while true
 while (true)
 {
+    i = 0;
     //parseInput(Console.ReadLine());
-    list = parseInputToList(Console.ReadLine(), 0);
+    list = parseInputToList(Console.ReadLine());
+    Console.ForegroundColor = ConsoleColor.Cyan;
+    printListElement(list, "");
+    Console.ResetColor();
 }
+
+void printListElement(List<ListElement> listElements, string offset) 
+{
+    foreach(ListElement l in listElements) 
+    {
+        if (l.list == null) 
+        {
+            Console.WriteLine(offset+"'"+l.content+"'");
+        }
+        else { printListElement(l.list, offset+" "); }
+    }
+}
+
 
 #region string attempt
 
@@ -274,9 +294,9 @@ string parseDiadicCustomFunction(string op, string _alpha, string _omega)
 
 #region list attempt
 
-List<IListElement> parseInputToList(string input, int startingIndex) 
+List<ListElement> parseInputToList(string input) 
 {
-    List<IListElement> result = new List<IListElement>();
+    List<ListElement> result = new List<ListElement>();
 
     if (input.Equals("exit")) { Environment.Exit(1); }
 
@@ -284,24 +304,37 @@ List<IListElement> parseInputToList(string input, int startingIndex)
 
     string currentSymbol = "";
 
-    for (int i = startingIndex; i < input.Length; i++)
+    for (; i < input.Length; i++)
     {
         if (input[i] == '(')
         {
-            result.Add(parseInputToList(input), ++i);
+            i++;
+            result.Add(new ListElement(parseInputToList(input)));
         }
-
-        if (input[i] != ' ') { currentSymbol += input[i]; } 
-        else { result.Add(new ListElement(currentSymbol)); }
-
         if (input[i] == ')')
         {
-            int firstBracket = openBrackets.Peek();
-            string statement = input.Substring(firstBracket + 1, i - firstBracket - 1);
-            result = new SubList(statement.Split(' ').ToList());
-            i = openBrackets.Pop();
+            i++;
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Symbol: '" + currentSymbol+"'");
+            Console.ResetColor();
+            if(currentSymbol != "")
+            result.Add(new ListElement(currentSymbol));
+            currentSymbol = "";
+            return result;
         }
+        if (input[i] != ' ') { currentSymbol += input[i];  }
+        else {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Symbol: '" + currentSymbol + "'");
+            Console.ResetColor();
+            result.Add(new ListElement(currentSymbol)); currentSymbol = ""; }
+
     }
+    /*
+    int firstBracket = openBrackets.Peek();
+    string statement = input.Substring(firstBracket + 1, i - firstBracket - 1);
+    result = new ListElement(statement.Split(' ').ToList());
+    i = openBrackets.Pop();*/
     return result;
 }
 
