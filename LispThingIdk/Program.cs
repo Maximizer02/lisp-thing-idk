@@ -1,5 +1,9 @@
-﻿Dictionary<string, string> constants = new Dictionary<string, string>();
+﻿using LispThingIdk;
+
+Dictionary<string, string> constants = new Dictionary<string, string>();
 Dictionary<string, int> integerVariables = new Dictionary<string, int>();
+Dictionary<string, string> monadicCustomFunctions = new Dictionary<string, string>();
+Dictionary<string, string> diadicCustomFunctions = new Dictionary<string, string>();
 
 Dictionary<string, Func<int, int, int>> diadicFuncsIntIntInt = new Dictionary<string, Func<int, int, int>>
 {
@@ -45,6 +49,10 @@ Dictionary<string, Func<bool, string, string>> diadicFuncsBoolStringString = new
 Dictionary<string, Func<string, string, string>> diadicFuncsStringStringString = new Dictionary<string, Func<string, string, string>>
 {
     {"def", (a,b) =>    {constants.Add(a,b); return b; } },
+    {"fn", (a,b)  =>  {if(b.Contains("a")){
+                       if(b.Contains("b")){diadicCustomFunctions.Add(a,b); }
+                       else{monadicCustomFunctions.Add(a,b); } }
+                       return "";}},
     {"+", (a,b) =>    {return a+b; } },
 };
 Dictionary<string, Func<string, string>> monadicFuncsStringString = new Dictionary<string, Func<string, string>>
@@ -64,6 +72,9 @@ Dictionary<string, Func<string, int>> monadicFuncsStringInt = new Dictionary<str
     {"get", a=>integerVariables.ContainsKey(a)?integerVariables[a]:-1 }
 };
 
+bool doEvaluate = false;
+
+List<IListElement> list = new List<IListElement>();
 
 
 
@@ -77,10 +88,11 @@ Dictionary<string, Func<string, int>> monadicFuncsStringInt = new Dictionary<str
 // TODO: make this not while true
 while (true)
 {
-    parseInput(Console.ReadLine());
+    //parseInput(Console.ReadLine());
+    list = parseInputToList(Console.ReadLine(), 0);
 }
 
-
+#region string attempt
 
 void parseInput(string input)
 {
@@ -90,6 +102,9 @@ void parseInput(string input)
 
     for (int i = 0; i < input.Length; i++)
     {
+        if (input[i] == '\'') { doEvaluate = false; }
+        if (input[i] == ';') { doEvaluate = true; }
+
         if (input[i] == '(')
         {
             openBrackets.Push(i);
@@ -108,6 +123,14 @@ void parseInput(string input)
 
 string parseStatement(string statement)
 {
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine(statement);
+    Console.ResetColor();
+    if (!doEvaluate)
+    {
+        return " ("+statement+")";
+    }
+
     string[] operands = statement.Split(' ');
     // TODO: Unfuck this
     try {  return parseStatementIntIntInt(operands[0], operands[1], operands[2]) + "";}catch(Exception) {  }
@@ -116,10 +139,12 @@ string parseStatement(string statement)
     try {  return parseStatementBoolStringString(operands[0], operands[1], operands[2]) +"";}catch(Exception) { }
     try {  return parseStatementStringIntInt(operands[0], operands[1], operands[2]) +"";}catch(Exception) { }
     try {  return parseStatementStringStringString(operands[0], operands[1], operands[2]) +"";}catch(Exception) { }
+    try {  return parseDiadicCustomFunction(operands[0], operands[1], operands[2]) +"";}catch(Exception) { }
     try {  return parseStatementIntInt(operands[0], operands[1]) +"";}catch(Exception) { }
     try {  return parseStatementBoolBool(operands[0], operands[1]) +"";}catch(Exception) { }
     try {  return parseStatementStringInt(operands[0], operands[1]) +"";}catch(Exception) { }
     try {  return parseStatementStringString(operands[0], operands[1]) +"";}catch(Exception) { }
+    try {  return parseMonadicCustomFunction(operands[0], operands[1]) +"";}catch(Exception) { }
    
     return "";
 }
@@ -188,9 +213,9 @@ string parseStatementStringStringString(string op, string _alpha, string _omega)
 
 
 //Monadic Functions
-int parseStatementIntInt(string op, string _omega) 
+int parseStatementIntInt(string op, string _alpha) 
 {
-    int omega = int.Parse(_omega) ;
+    int omega = int.Parse(_alpha) ;
     if (monadicFuncsIntInt.ContainsKey(op))
     {
         return monadicFuncsIntInt[op](omega);
@@ -198,9 +223,9 @@ int parseStatementIntInt(string op, string _omega)
     throw new Exception();
 }
 
-bool parseStatementBoolBool(string op, string _omega) 
+bool parseStatementBoolBool(string op, string _alpha) 
 {
-    bool omega = bool.Parse(_omega);
+    bool omega = bool.Parse(_alpha);
     if (monadicFuncsBoolBool.ContainsKey(op))
     {
         return monadicFuncsBoolBool [op](omega);
@@ -208,20 +233,76 @@ bool parseStatementBoolBool(string op, string _omega)
     throw new Exception();
 }
 
-int parseStatementStringInt(string op, string _omega) 
+int parseStatementStringInt(string op, string _alpha) 
 {
     if (monadicFuncsStringInt.ContainsKey(op))
     {
-        return monadicFuncsStringInt[op](_omega);
+        return monadicFuncsStringInt[op](_alpha);
     }
     throw new Exception();
 }
 
-string parseStatementStringString(string op, string _omega) 
+string parseStatementStringString(string op, string _alpha) 
 {
     if (monadicFuncsStringString.ContainsKey(op))
     {
-        return monadicFuncsStringString[op](_omega);
+        return monadicFuncsStringString[op](_alpha);
     }
     throw new Exception();
 }
+
+
+//Parse custom functions
+string parseMonadicCustomFunction(string op, string _alpha) 
+{
+    if (monadicCustomFunctions.ContainsKey(op))
+    {
+        return monadicCustomFunctions[op].Replace("a",_alpha);
+    }
+    throw new Exception();
+}
+string parseDiadicCustomFunction(string op, string _alpha, string _omega) 
+{
+    if (diadicCustomFunctions.ContainsKey(op))
+    {
+        return diadicCustomFunctions[op].Replace("a", _alpha).Replace("o",_omega);
+    }
+    throw new Exception();
+}
+
+#endregion
+
+#region list attempt
+
+List<IListElement> parseInputToList(string input, int startingIndex) 
+{
+    List<IListElement> result = new List<IListElement>();
+
+    if (input.Equals("exit")) { Environment.Exit(1); }
+
+    Stack<int> openBrackets = new Stack<int>();
+
+    string currentSymbol = "";
+
+    for (int i = startingIndex; i < input.Length; i++)
+    {
+        if (input[i] == '(')
+        {
+            result.Add(parseInputToList(input), ++i);
+        }
+
+        if (input[i] != ' ') { currentSymbol += input[i]; } 
+        else { result.Add(new ListElement(currentSymbol)); }
+
+        if (input[i] == ')')
+        {
+            int firstBracket = openBrackets.Peek();
+            string statement = input.Substring(firstBracket + 1, i - firstBracket - 1);
+            result = new SubList(statement.Split(' ').ToList());
+            i = openBrackets.Pop();
+        }
+    }
+    return result;
+}
+
+#endregion
