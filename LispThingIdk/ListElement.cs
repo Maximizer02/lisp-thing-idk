@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LispThingIdk
+﻿namespace LispThingIdk
 {
     public class ListElement
     {
         public List<ListElement> list { get; }
-        public string content { get; }
+        public string content { get; set; }
         public ListElement(string _content) { content = _content; }
-        public ListElement(List<ListElement> _list) { list = _list; }
+        public ListElement(ListElement _list) { list = _list.list; }
+        public ListElement() {  list = new List<ListElement>(); }
     }
 }
