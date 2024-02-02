@@ -9,8 +9,9 @@ namespace LispThingIdk
 
         public static string evaluateStatements(ListElement code)
         {
-            if (code.list == null && code.content == null) return null;
+            if (code.list == null && code.content == null) return "";
             if (code.list == null && code.content != null) return code.content;
+            //if(code.list == null) throw new NotImplementedException("Fuck you");
 
             foreach (ListElement symbol in code.list)
             {
@@ -30,18 +31,14 @@ namespace LispThingIdk
 
         private static string evaluateStatement(ListElement statement)
         {
+            //if (statement.list == null) { throw new NotImplementedException("No"); }
 
             string[] operands = new string[statement.list.Count];
             for (int i = 0; i < statement.list.Count; i++) 
             {
                 operands[i] = statement.list[i].content;
             }
-            /*
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            foreach (string op  in operands) { Console.Write(op+"; "); }
-            Console.WriteLine();
-            Console.ResetColor();*/
-
+           
             // TODO: Unfuck this
             try { return parseStatementIntIntInt(operands[0], operands[1], operands[2]) + ""; } catch (Exception) { }
             try { return parseStatementIntIntBool(operands[0], operands[1], operands[2]) + ""; } catch (Exception) { }
