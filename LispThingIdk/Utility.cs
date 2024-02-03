@@ -10,7 +10,7 @@ namespace LispThingIdk
     {
         public static void printListElement(ListElement listElements, string offset)
         {
-            if (listElements.list == null) return;
+            if (!listElements.list.Any()) return;
             foreach (ListElement l in listElements.list)
             {
                 if (l.list == null)

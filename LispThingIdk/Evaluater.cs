@@ -9,13 +9,13 @@ namespace LispThingIdk
 
         public static string evaluateStatements(ListElement code)
         {
-            if (code.list == null && code.content == null) return "";
-            if (code.list == null && code.content != null) return code.content;
+            if (!code.list.Any() && code.content == "") return "";
+            if (!code.list.Any() && code.content != "") return code.content;
             //if(code.list == null) throw new NotImplementedException("Fuck you");
 
             foreach (ListElement symbol in code.list)
             {
-                if (symbol.content == null && symbol.list != null)
+                if (symbol.content == "" && symbol.list.Any())
                 {
                     symbol.content = evaluateStatements(symbol);
                 }
@@ -47,6 +47,7 @@ namespace LispThingIdk
             try { return parseStatementStringIntInt(operands[0], operands[1], operands[2]) + ""; } catch (Exception) { }
             try { return parseStatementStringStringString(operands[0], operands[1], operands[2]) + ""; } catch (Exception) { }
             try { return parseDiadicCustomFunction(operands[0], operands[1], operands[2]) + ""; } catch (Exception) { }
+
             try { return parseStatementIntInt(operands[0], operands[1]) + ""; } catch (Exception) { }
             try { return parseStatementBoolBool(operands[0], operands[1]) + ""; } catch (Exception) { }
             try { return parseStatementStringInt(operands[0], operands[1]) + ""; } catch (Exception) { }

@@ -66,7 +66,7 @@
         };
         public static Dictionary<string, Func<string, string>> monadicFuncsStringString = new Dictionary<string, Func<string, string>>
         {
-            {"get", a => constants.ContainsKey(a)?constants[a]:"-1" },
+            {"get", a => constants[a] },
             { "?", a=> {Console.WriteLine(a); return a; } }
         };
         public static Dictionary<string, Func<string, int, int>> diadicFuncsStringIntInt = new Dictionary<string, Func<string, int, int>>
@@ -76,7 +76,7 @@
         };
         public static Dictionary<string, Func<string, int>> monadicFuncsStringInt = new Dictionary<string, Func<string, int>>
         {
-            {"get", a=>integerVariables.ContainsKey(a)?integerVariables[a]:-1 }
+            {"get", a=>integerVariables[a] }
         };
     }
 }
