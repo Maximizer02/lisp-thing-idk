@@ -173,7 +173,7 @@ namespace LispThingIdk
         {
             if (diadicCustomFunctions.ContainsKey(op))
             {
-                return diadicCustomFunctions[op].Replace("a", _alpha).Replace("o", _omega);
+                return diadicCustomFunctions[op].Replace("a", _alpha).Replace("b", _omega);
             }
             throw new Exception();
         }
