@@ -15,7 +15,7 @@ namespace LispThingIdk
 
             foreach (ListElement symbol in code.list)
             {
-                if (symbol.content == "" && symbol.list.Any())
+                if (symbol.type==DataType.LIST)
                 {
                     symbol.content = evaluateStatements(symbol);
                 }
@@ -32,27 +32,33 @@ namespace LispThingIdk
         private static string evaluateStatement(ListElement statement)
         {
             //if (statement.list == null) { throw new NotImplementedException("No"); }
+            ListElement _operator; ListElement _op1; ListElement _op2;
 
-            string[] operands = new string[statement.list.Count];
-            for (int i = 0; i < statement.list.Count; i++) 
+            try 
             {
-                operands[i] = statement.list[i].content;
+             _operator = statement.list.First(x=>x.type==DataType.OPERATOR);
+             _op1 = statement.list.First(x => x.type != DataType.OPERATOR);
+             _op2 = statement.list.Last(x => x.type != DataType.OPERATOR);
             }
+            catch { return statement.content; }
+            string op0 = _operator.content;
+            string op1=_op1.content;
+            string op2=_op2.content;
            
             // TODO: Unfuck this
-            try { return parseStatementIntIntInt(operands[0], operands[1], operands[2]) + ""; } catch (Exception) { }
-            try { return parseStatementIntIntBool(operands[0], operands[1], operands[2]) + ""; } catch (Exception) { }
-            try { return parseStatementBoolBoolBool(operands[0], operands[1], operands[2]) + ""; } catch (Exception) { }
-            try { return parseStatementBoolStringString(operands[0], operands[1], operands[2]) + ""; } catch (Exception) { }
-            try { return parseStatementStringIntInt(operands[0], operands[1], operands[2]) + ""; } catch (Exception) { }
-            try { return parseStatementStringStringString(operands[0], operands[1], operands[2]) + ""; } catch (Exception) { }
-            try { return parseDiadicCustomFunction(operands[0], operands[1], operands[2]) + ""; } catch (Exception) { }
+            try { return parseStatementIntIntInt(op0, op1, op2) + ""; } catch (Exception) { }
+            try { return parseStatementIntIntBool(op0, op1, op2) + ""; } catch (Exception) { }
+            try { return parseStatementBoolBoolBool(op0, op1, op2) + ""; } catch (Exception) { }
+            try { return parseStatementBoolStringString(op0, op1, op2) + ""; } catch (Exception) { }
+            try { return parseStatementStringIntInt(op0, op1, op2) + ""; } catch (Exception) { }
+            try { return parseStatementStringStringString(op0, op1, op2) + ""; } catch (Exception) { }
+            try { return parseDiadicCustomFunction(op0, op1, op2) + ""; } catch (Exception) { }
 
-            try { return parseStatementIntInt(operands[0], operands[1]) + ""; } catch (Exception) { }
-            try { return parseStatementBoolBool(operands[0], operands[1]) + ""; } catch (Exception) { }
-            try { return parseStatementStringInt(operands[0], operands[1]) + ""; } catch (Exception) { }
-            try { return parseStatementStringString(operands[0], operands[1]) + ""; } catch (Exception) { }
-            try { return parseMonadicCustomFunction(operands[0], operands[1]) + ""; } catch (Exception) { }
+            try { return parseStatementIntInt(op0, op1) + ""; } catch (Exception) { }
+            try { return parseStatementBoolBool(op0, op1) + ""; } catch (Exception) { }
+            try { return parseStatementStringInt(op0, op1) + ""; } catch (Exception) { }
+            try { return parseStatementStringString(op0, op1) + ""; } catch (Exception) { }
+            try { return parseMonadicCustomFunction(op0, op1) + ""; } catch (Exception) { }
 
             throw new NotImplementedException("This function does not exist");
         }

@@ -9,10 +9,14 @@
 
         // TODO: everything to do with doubles lol
 
+        //TODO damit könnte ich den evaluator doch mies vereinfachen, oder?
+        List<Dictionary<string, ListElement>> monadicFunctions = new List<Dictionary<string, ListElement>>();
+        List<Dictionary<string, ListElement>> diadicFunctions = new List<Dictionary<string, ListElement>>();
+
         private static Dictionary<string, string> constants = new Dictionary<string, string>();
         private static Dictionary<string, int> integerVariables = new Dictionary<string, int>();
         public static Dictionary<string, string> monadicCustomFunctions = new Dictionary<string, string>();
-        public static  Dictionary<string, string> diadicCustomFunctions = new Dictionary<string, string>();
+        public static Dictionary<string, string> diadicCustomFunctions = new Dictionary<string, string>();
 
         public static Dictionary<string, Func<int, int, int>> diadicFuncsIntIntInt = new Dictionary<string, Func<int, int, int>>
         {
@@ -78,5 +82,28 @@
         {
             {"get", a=>integerVariables[a] }
         };
+        public static Dictionary<string, Func<ListElement, ListElement>> monadicFuncsListList = new Dictionary<string, Func<ListElement, ListElement>> 
+        {
+            {"?", a=>{Console.WriteLine(a.list.ToString()); return a; }}
+        };
+
+        public static List<string> getAllFunctionIdentifiers()  
+        {
+        List<string> res =
+        [
+            .. diadicFuncsIntIntInt.Keys.ToList(),
+            .. diadicFuncsIntIntBool.Keys.ToList(),
+            .. monadicFuncsIntInt.Keys.ToList(),
+            .. monadicFuncsBoolBool.Keys.ToList(),
+            .. diadicFuncsBoolBoolBool.Keys.ToList(),
+            .. diadicFuncsBoolStringString.Keys.ToList(),
+            .. diadicFuncsStringStringString.Keys.ToList(),
+            .. monadicFuncsStringString.Keys.ToList(),
+            .. diadicFuncsStringIntInt.Keys.ToList(),
+            .. monadicFuncsStringInt.Keys.ToList(),
+        ];
+
+        return res;
+        }
     }
 }

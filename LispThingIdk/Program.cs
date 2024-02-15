@@ -16,6 +16,9 @@ namespace LispThingIdk
                 string input = Console.ReadLine() ?? "";
                 if (input == null || input == "") continue;
                 list = parseInputToList(input);
+                
+                Utility.printListElement(list," ");
+                
                 try
                 {
                     evaluateStatements(list);
@@ -44,6 +47,17 @@ namespace LispThingIdk
             {
                 switch (input[i])
                 {
+                    case '[':
+                        i++;
+                        result.list.Add(new ListElement(parseInputToList(input),true));
+                        break;
+                    case ']':
+                        if (currentSymbol != "")
+                        {
+                            result.list.Add(new ListElement(currentSymbol));
+                        }
+                        return result;
+
                     case '(':
                         i++;
                         result.list.Add(new ListElement(parseInputToList(input)));
