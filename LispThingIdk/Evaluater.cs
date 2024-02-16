@@ -7,32 +7,43 @@ namespace LispThingIdk
     internal class Evaluater
     {
 
-        public static string evaluateStatements(ListElement code)
+        public static ListElement evaluateStatements(ListElement code)
         {
-            if (!code.list.Any() && code.content == "") return "";
-            if (!code.list.Any() && code.content != "") return code.content;
-            //if(code.list == null) throw new NotImplementedException("Fuck you");
+            if (!code.list.Any() && code.content == "") return new ListElement();
+            if (!code.list.Any() && code.content != "") return code;
+            if (code.noEval) return code;
+            code.list.RemoveAll(x => x.type == DataType.UNDEF || (x.content == "" && !x.list.Any()));
+            
 
-            foreach (ListElement symbol in code.list)
+            for(int element = 0;element < code.list.Count;element++)
             {
-                if (symbol.type==DataType.LIST)
+                if (code.list[element].type==DataType.LIST)
                 {
-                    symbol.content = evaluateStatements(symbol);
+                    code.list[element] = evaluateStatements(code.list[element]);
                 }
             }
             if (code.list.Count == 1)
             {
-                return code.list[0].content;
+                return code.list[0];
             }
             return evaluateStatement(code);
         }
 
 
 
-        private static string evaluateStatement(ListElement statement)
+        private static ListElement evaluateStatement(ListElement statement)
         {
-            //if (statement.list == null) { throw new NotImplementedException("No"); }
-            ListElement _operator; ListElement _op1; ListElement _op2;
+            /*
+            Utility.printListElement(statement, " ");
+            statement.list.ForEach(x => Console.Write(x.content==""?Utility.getListAsString(x):x.content+"; "));
+            Console.WriteLine(" "+statement.noEval);*/
+           
+            ListElement _operator,_op1,_op2;
+            if (statement.noEval) 
+            {
+                statement.type= DataType.DataList;
+                return statement; 
+            }
 
             try 
             {
@@ -40,25 +51,39 @@ namespace LispThingIdk
              _op1 = statement.list.First(x => x.type != DataType.OPERATOR);
              _op2 = statement.list.Last(x => x.type != DataType.OPERATOR);
             }
-            catch { return statement.content; }
+            catch { Console.WriteLine("Fuck"); return statement; }
             string op0 = _operator.content;
             string op1=_op1.content;
             string op2=_op2.content;
-           
-            // TODO: Unfuck this
-            try { return parseStatementIntIntInt(op0, op1, op2) + ""; } catch (Exception) { }
-            try { return parseStatementIntIntBool(op0, op1, op2) + ""; } catch (Exception) { }
-            try { return parseStatementBoolBoolBool(op0, op1, op2) + ""; } catch (Exception) { }
-            try { return parseStatementBoolStringString(op0, op1, op2) + ""; } catch (Exception) { }
-            try { return parseStatementStringIntInt(op0, op1, op2) + ""; } catch (Exception) { }
-            try { return parseStatementStringStringString(op0, op1, op2) + ""; } catch (Exception) { }
-            try { return parseDiadicCustomFunction(op0, op1, op2) + ""; } catch (Exception) { }
 
-            try { return parseStatementIntInt(op0, op1) + ""; } catch (Exception) { }
-            try { return parseStatementBoolBool(op0, op1) + ""; } catch (Exception) { }
-            try { return parseStatementStringInt(op0, op1) + ""; } catch (Exception) { }
-            try { return parseStatementStringString(op0, op1) + ""; } catch (Exception) { }
-            try { return parseMonadicCustomFunction(op0, op1) + ""; } catch (Exception) { }
+
+            // TODO: Unfuck this
+
+            
+            try { return parseStatementListList(op0, _op1); } catch (Exception) { }
+            
+            try { return parseStatementListListList(op0, _op1,_op2); } catch (Exception) { }
+
+            try { return new ListElement(parseStatementStringListList(op0, op1, _op2) + ""); } catch (Exception) { }
+
+
+            try { return parseDiadicCustomFunction(op0, op1, op2); } catch (Exception) { }
+            try { return parseMonadicCustomFunction(op0, op1) ; } catch (Exception e) { }
+
+            try { return new ListElement(parseStatementIntIntInt(op0, op1, op2) + ""); } catch (Exception) { }
+            try { return new ListElement(parseStatementIntIntBool(op0, op1, op2) + ""); } catch (Exception) { }
+            try { return new ListElement(parseStatementBoolBoolBool(op0, op1, op2) + ""); } catch (Exception) { }
+            try { return new ListElement(parseStatementBoolStringString(op0, op1, op2) + ""); } catch (Exception) { }
+            try { return new ListElement(parseStatementStringIntInt(op0, op1, op2) + ""); } catch (Exception) { }
+            try { return new ListElement(parseStatementStringStringString(op0, op1, op2) + ""); } catch (Exception) { }
+           
+
+            try { return new ListElement(parseStatementIntInt(op0, op1) + ""); } catch (Exception) { }
+            try { return new ListElement(parseStatementBoolBool(op0, op1) + ""); } catch (Exception) { }
+            try { return new ListElement(parseStatementStringInt(op0, op1) + ""); } catch (Exception) { }
+            try { return new ListElement(parseStatementStringString(op0, op1) + ""); } catch (Exception e) {  }
+            
+           
 
             throw new NotImplementedException("This function does not exist");
         }
@@ -125,6 +150,30 @@ namespace LispThingIdk
             throw new Exception();
         }
 
+        private static ListElement parseStatementListListList(string op, ListElement _alpha, ListElement _omega)
+        {
+            if (_alpha.content != ""|| _omega.content != "") throw new Exception();
+            if (diadicFuncsListListList.ContainsKey(op))
+            {
+                return diadicFuncsListListList[op](_alpha,_omega);
+            }
+            throw new Exception();
+        }
+        
+        
+        private static ListElement parseStatementStringListList(string op, string _alpha, ListElement _omega)
+        {
+            if (_omega.content != "") throw new Exception();
+            if (diadicFuncsStringListList.ContainsKey(op))
+            {
+                return diadicFuncsStringListList[op](_alpha,_omega);
+            }
+            throw new Exception();
+        }
+
+
+
+
 
         //Monadic Functions
         private static int parseStatementIntInt(string op, string _alpha)
@@ -165,21 +214,58 @@ namespace LispThingIdk
             throw new Exception();
         }
 
-
-        //Parse custom functions
-        private static string parseMonadicCustomFunction(string op, string _alpha)
+        private static ListElement parseStatementListList(string op, ListElement _alpha)
         {
-            if (monadicCustomFunctions.ContainsKey(op))
+            if(_alpha.content!="") throw new Exception();
+            if (monadicFuncsListList.ContainsKey(op))
             {
-                return monadicCustomFunctions[op].Replace("a", _alpha);
+                return monadicFuncsListList[op](_alpha);
             }
             throw new Exception();
         }
-        private static string parseDiadicCustomFunction(string op, string _alpha, string _omega)
+
+     
+
+
+        //Parse custom functions
+        private static ListElement parseMonadicCustomFunction(string op, string _alpha)
+        {
+  
+            //Console.WriteLine(monadicCustomFunctions.ContainsKey(op));
+
+            if (monadicCustomFunctions.ContainsKey(op))
+            {
+                /*
+                Console.WriteLine("#######");
+                Utility.printListElement(monadicCustomFunctions[op], " ");
+                Console.WriteLine ("#######");*/
+
+                ListElement functionBody = monadicCustomFunctions[op].Clone();
+                /*
+                Utility.printListElement(functionBody, " ");
+                Console.WriteLine("#######");*/
+                functionBody.noEval = false;
+
+                functionBody.list = Utility.replaceElement(functionBody.list, "a", _alpha);
+                return evaluateStatements(functionBody);
+
+            }
+            throw new Exception();
+        }
+        private static ListElement parseDiadicCustomFunction(string op, string _alpha, string _omega)
         {
             if (diadicCustomFunctions.ContainsKey(op))
             {
-                return diadicCustomFunctions[op].Replace("a", _alpha).Replace("b", _omega);
+                
+
+                ListElement functionBody = diadicCustomFunctions[op].Clone();
+                
+                functionBody.noEval = false;
+
+                functionBody.list = Utility.replaceElement(functionBody.list, "a", _alpha);
+                functionBody.list = Utility.replaceElement(functionBody.list, "b", _omega);
+                return evaluateStatements(functionBody);
+
             }
             throw new Exception();
         }

@@ -38,7 +38,7 @@ namespace LispThingIdk
 
         static ListElement parseInputToList(string input)
         {
-            if (input.Equals("exit")) { Environment.Exit(1); }
+            if (input.Equals("exit")) { Environment.Exit(0); }
 
             ListElement result = new ListElement();
             string currentSymbol = "";
@@ -48,6 +48,10 @@ namespace LispThingIdk
                 switch (input[i])
                 {
                     case '[':
+                        if (currentSymbol != "")
+                        {
+                            result.list.Add(new ListElement(currentSymbol)); currentSymbol = "";
+                        }
                         i++;
                         result.list.Add(new ListElement(parseInputToList(input),true));
                         break;
@@ -57,8 +61,9 @@ namespace LispThingIdk
                             result.list.Add(new ListElement(currentSymbol));
                         }
                         return result;
-
                     case '(':
+                        if (currentSymbol != "") { 
+                        result.list.Add(new ListElement(currentSymbol)); currentSymbol = "";}
                         i++;
                         result.list.Add(new ListElement(parseInputToList(input)));
                         break;

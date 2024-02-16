@@ -14,6 +14,7 @@ namespace LispThingIdk
         INT,
         UNDEF,
         LIST,
+        DataList,
         FUNCTION,
         OPERATOR
     }

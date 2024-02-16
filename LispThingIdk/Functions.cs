@@ -10,13 +10,12 @@
         // TODO: everything to do with doubles lol
 
         //TODO damit könnte ich den evaluator doch mies vereinfachen, oder?
-        List<Dictionary<string, ListElement>> monadicFunctions = new List<Dictionary<string, ListElement>>();
-        List<Dictionary<string, ListElement>> diadicFunctions = new List<Dictionary<string, ListElement>>();
 
         private static Dictionary<string, string> constants = new Dictionary<string, string>();
         private static Dictionary<string, int> integerVariables = new Dictionary<string, int>();
-        public static Dictionary<string, string> monadicCustomFunctions = new Dictionary<string, string>();
-        public static Dictionary<string, string> diadicCustomFunctions = new Dictionary<string, string>();
+
+        public static Dictionary<string, ListElement> monadicCustomFunctions = new Dictionary<string, ListElement>();
+        public static Dictionary<string, ListElement> diadicCustomFunctions = new Dictionary<string, ListElement>();
 
         public static Dictionary<string, Func<int, int, int>> diadicFuncsIntIntInt = new Dictionary<string, Func<int, int, int>>
         {
@@ -62,16 +61,20 @@
         public static Dictionary<string, Func<string, string, string>> diadicFuncsStringStringString = new Dictionary<string, Func<string, string, string>>
         {
             {"def", (a,b) =>    {constants.Add(a,b); return b; } },
-            {"fn", (a,b)  =>  {if(b.Contains("a")){
-                               if(b.Contains("b")){diadicCustomFunctions.Add(a,b); }
-                               else{monadicCustomFunctions.Add(a,b); } }
-                               return "";}},
             {"+", (a,b) =>    {return a+b; } },
         };
         public static Dictionary<string, Func<string, string>> monadicFuncsStringString = new Dictionary<string, Func<string, string>>
         {
             {"get", a => constants[a] },
-            { "?", a=> {Console.WriteLine(a); return a; } }
+            { "?", a=> {Console.WriteLine(a); return ""; } },
+            {"func", a=>
+            {
+                a=a.Remove(0,1);
+                Console.WriteLine(Utility.getListAsString(monadicCustomFunctions[a]));
+                Utility.printListElement(monadicCustomFunctions[a]," ");
+                return a;
+
+            }}
         };
         public static Dictionary<string, Func<string, int, int>> diadicFuncsStringIntInt = new Dictionary<string, Func<string, int, int>>
         {
@@ -84,7 +87,37 @@
         };
         public static Dictionary<string, Func<ListElement, ListElement>> monadicFuncsListList = new Dictionary<string, Func<ListElement, ListElement>> 
         {
-            {"?", a=>{Console.WriteLine(a.list.ToString()); return a; }}
+            {"?", a=>{Console.WriteLine(
+                "["+Utility.getListAsString(a).Replace('|',' ')+"]"
+                ); return new ListElement(); }}
+        };
+        public static Dictionary<string, Func<ListElement, ListElement, ListElement>> diadicFuncsListListList = new Dictionary<string, Func<ListElement, ListElement, ListElement>>
+        {
+            {"cat", (a,b)=>{ListElement l = new ListElement();l.type=DataType.DataList; l.list.AddRange(a.list);l.list.AddRange(b.list);return l; } }
+        };
+
+        public static Dictionary<string, Func<string, ListElement, ListElement>> diadicFuncsStringListList = new Dictionary<string, Func<string, ListElement, ListElement>> 
+        {
+            {"fn", (a,b)=>
+                {
+                    b.noEval = false;
+                    b.list=Utility.setDataTypeWhere(b.list,a,DataType.OPERATOR);
+                    if(Utility.containsElement(b,"a"))
+                    {
+                        if(Utility.containsElement(b,"b"))
+                        {
+                            diadicCustomFunctions.Add(a,b);
+                            Console.WriteLine($"added {a}");
+                        }
+                        else
+                        {
+                            monadicCustomFunctions.Add(a,b);
+                            Console.WriteLine($"added {a}");
+                        }
+                    }
+                    return b;
+                }
+            }
         };
 
         public static List<string> getAllFunctionIdentifiers()  
@@ -101,6 +134,10 @@
             .. monadicFuncsStringString.Keys.ToList(),
             .. diadicFuncsStringIntInt.Keys.ToList(),
             .. monadicFuncsStringInt.Keys.ToList(),
+            .. diadicFuncsListListList.Keys.ToList(),
+            .. diadicFuncsStringListList.Keys.ToList(),
+            .. monadicCustomFunctions.Keys.ToList(),
+            .. diadicCustomFunctions.Keys.ToList()
         ];
 
         return res;
