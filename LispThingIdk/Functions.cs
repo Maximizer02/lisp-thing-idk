@@ -67,11 +67,19 @@
         {
             {"get", a => constants[a] },
             { "?", a=> {Console.WriteLine(a); return ""; } },
-            {"func", a=>
+            {"funcm", a=>
             {
                 a=a.Remove(0,1);
                 Console.WriteLine(Utility.getListAsString(monadicCustomFunctions[a]));
                 Utility.printListElement(monadicCustomFunctions[a]," ");
+                return a;
+
+            }},
+            {"funcd", a=>
+            {
+                a=a.Remove(0,1);
+                Console.WriteLine(Utility.getListAsString(diadicCustomFunctions[a]));
+                Utility.printListElement(diadicCustomFunctions[a]," ");
                 return a;
 
             }}
